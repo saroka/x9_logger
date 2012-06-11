@@ -1,22 +1,21 @@
 # -*- encoding : utf-8 -*-
 module X9Logger
-  class << self
+  class Log
     include Config
 
-    def new &block
+    def initialize &block
       yield self
-      self
     end
 
     %w(debug info warn).each do |severity|
       define_method severity do |obj|
-        output_to @out, severity, obj
+        output_to out, severity, obj
       end
     end
 
     %w(error fatal).each do |severity|
       define_method severity do |obj|
-        output_to @err, severity, obj
+        output_to err, severity, obj
       end
     end
 

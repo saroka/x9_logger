@@ -11,7 +11,7 @@ module X9Logger
     end
 
     def err
-      @err || out
+      @err ||= out
     end
 
     def out
