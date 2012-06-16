@@ -1,43 +1,57 @@
 require 'spec_helper'
 
 describe X9Logger do
-  let(:out_log) { 'out.log' }
-  let(:err_log) { 'err.log' }
 
-  subject {
-    X9Logger.new do |l|
-      l.out = out_log
-      l.err = err_log
-    end
+  let(:output) {
+    StringIO.new
   }
 
-  after :each do
-    FileUtils.rm out_log if File.exists?(out_log)
-    FileUtils.rm err_log if File.exists?(err_log)
-  end
+  let(:errput) {
+    StringIO.new
+  }
 
-  it 'receives a block with configuration of out and err' do
-    subject.out.should_not be_nil
-    subject.err.should_not be_nil
-  end
+  context 'logger with out and err configured' do
+    subject {
+      X9Logger.new do |l|
+        l.out = output
+        l.err = errput
+      end
+    }
 
-  it 'output error to out when err is not provided' do
-    logger = X9Logger.new {|l| l.out = out_log}
-    logger.error 'error level'
-    File.read(out_log).should include("error level")
-  end
+    %w(debug info warn).each do |level|
+      it "logs #{level} level to out device" do
+        subject.send level, "#{level} level"
+        output.rewind
+        output.read.should include("#{level} level")
+        errput.rewind
+        errput.read.should_not include("#{level} level")
+      end
+    end
 
-  %w(debug info warn).each do |level|
-    it "logs #{level} level to out device" do
-      subject.send level, "#{level} level"
-      File.read(out_log).should include("#{level} level")
+    %w(error fatal).each do |level|
+      it "logs #{level} level to err device" do
+        subject.send level, "#{level} level"
+        output.rewind
+        output.read.should_not include("#{level} level")
+        errput.rewind
+        errput.read.should include("#{level} level")
+      end
     end
   end
 
-  %w(error fatal).each do |level|
-    it "logs #{level} level to err device" do
-      subject.send level, "#{level} level"
-      File.read(err_log).should include("#{level} level")
+  context 'logger with only out configured' do
+    subject {
+      X9Logger.new do |l|
+        l.out = output
+      end
+    }
+
+    %w(debug info warn error fatal).each do |level|
+      it "logs #{level} level to out device" do
+        subject.send level, "#{level} level"
+        output.rewind
+        output.read.should include("#{level} level")
+      end
     end
   end
 end

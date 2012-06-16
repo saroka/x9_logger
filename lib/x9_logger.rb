@@ -14,4 +14,3 @@ module X9Logger
     end
   end
 end
-
