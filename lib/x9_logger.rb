@@ -5,7 +5,7 @@ require 'active_support'
 
 require_relative 'x9_logger/version'
 require_relative 'x9_logger/config'
-require_relative 'x9_logger/logger'
+require_relative 'x9_logger/log'
 
 module X9Logger
   class << self
